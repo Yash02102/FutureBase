@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -9,6 +9,7 @@ from .tools.search_tool import web_search
 from .tools.browser_tool import open_browser
 from .tools.db_tool import query_internal_api
 from .tools.custom_tool import run_custom_tool
+from .tools.mcp_tool import call_mcp_tool
 
 
 @tool
@@ -41,6 +42,12 @@ def custom_tool(payload: str) -> str:
     return run_custom_tool(payload)
 
 
+@tool
+def mcp_tool(server_name: str, tool_name: str, arguments: Dict[str, str]) -> str:
+    """Call a remote MCP server tool by name."""
+    return call_mcp_tool(server_name, tool_name, arguments)
+
+
 class Executor:
     def __init__(self, model: str):
         self.llm = ChatOpenAI(model=model)
@@ -50,6 +57,7 @@ class Executor:
             browser_tool,
             internal_api_tool,
             custom_tool,
+            mcp_tool,
         ]
 
     def execute(self, task: str, context: str) -> str:
