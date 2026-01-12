@@ -1,12 +1,11 @@
-from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 
 from .utils.schemas import Plan
 
 
 class Planner:
-    def __init__(self, model: str):
-        self.llm = ChatOpenAI(model=model)
+    def __init__(self, llm):
+        self.llm = llm
 
     def generate_plan(self, goal: str) -> Plan:
         prompt = ChatPromptTemplate.from_messages(

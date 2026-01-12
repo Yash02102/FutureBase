@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field
-from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 
 
@@ -9,8 +8,8 @@ class Verification(BaseModel):
 
 
 class Verifier:
-    def __init__(self, model: str):
-        self.llm = ChatOpenAI(model=model)
+    def __init__(self, llm):
+        self.llm = llm
 
     def verify(self, task: str, result: str) -> Verification:
         prompt = ChatPromptTemplate.from_messages(
