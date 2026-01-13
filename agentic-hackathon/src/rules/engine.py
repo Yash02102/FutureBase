@@ -7,6 +7,7 @@ class Intent:
     name: str
     confidence: float = 0.0
     tags: List[str] = field(default_factory=list)
+    entities: Dict[str, str] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)

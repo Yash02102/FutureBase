@@ -37,6 +37,31 @@ python -m src.tools.ingest --input ./docs --index ./data/faiss_index
 python -m src.agent_core "Plan a project roadmap from the docs"
 ```
 
+## Commerce Agent
+Run the commerce-focused workflow with self-healing, memory, and trace logging.
+```
+python -m src.commerce_agent "Buy me a wireless headset under 5000"
+```
+
+## Chat UI
+Serve a minimal chat interface over HTTP.
+```
+uvicorn src.chat_ui:app --reload
+```
+
+Key environment options:
+- `RULESET=commerce` to enable commerce intent rules.
+- `COMMERCE_API_MODE=mock|remote` and `COMMERCE_API_BASE_URL` for live APIs.
+- `MEMORY_MAX_TURNS`, `MEMORY_MAX_TOOL_RESULTS`, `MEMORY_SUMMARIZE` for memory control.
+- `MEMORY_BACKEND=sqlite` and `MEMORY_DB_PATH=./data/commerce_memory.db` for persistence.
+- `TRACE_RECORDER=jsonl` and `TRACE_OUTPUT_PATH=./traces/commerce.jsonl` for step traces.
+- `WORKFLOW_MAX_RETRIES` to cap per-step retries in the workflow runner.
+- `HUMAN_INPUT_MODE=manual` and `HUMAN_INPUT_DEFAULT_*` for step input collection.
+- `FORCE_RAG=true` to always pull RAG context per step.
+- `DEEPAGENTS_ENABLED=true`/`DEEPAGENTS_ROUNDS` for subagent insights.
+- `AUTOGEN_ENABLED=true`/`AUTOGEN_ROUNDS` for multi-agent role loops.
+- `COMMERCE_MCP_SERVER`, `COMMERCE_MCP_CATALOG_TOOL`, `COMMERCE_MCP_INVENTORY_TOOL` to route catalog/inventory via MCP.
+
 ## Policy & Controls
 - Rules/intent: set `RULESET=commerce` for commerce-flavored intents and rules.
 - Guardrails: tune `GUARDRAIL_MAX_INPUT_CHARS`, `GUARDRAIL_MAX_OUTPUT_CHARS`, and `GUARDRAIL_BLOCKLIST`.
@@ -119,6 +144,7 @@ agentic-hackathon/
 
 ## Extending
 - Add new tools in `src/tools/` and register them in `src/executor.py`.
+- Update commerce workflows in `src/commerce_workflow.py` for new intents.
 - Extend MCP behaviors in `src/mcp/` and swap transports to real MCP clients.
 - Replace `default_responder` in `src/autogen/multi_agent.py` with LLM-driven logic.
 - Swap models via `LLM_PROVIDER`/`LLM_MODEL` or use `EMBEDDING_MODEL` in `.env`.
