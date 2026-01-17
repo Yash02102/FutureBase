@@ -1,55 +1,46 @@
-from typing import Dict, List, Optional, Protocol
+from __future__ import annotations
 
-from .schemas import MCPServerConfig, MCPToolSpec
+import json
+from dataclasses import dataclass
+from typing import Any, Dict, Optional
 
-
-class MCPTransport(Protocol):
-    def connect(self, server: MCPServerConfig) -> None:
-        ...
-
-    def list_tools(self, server: MCPServerConfig) -> List[MCPToolSpec]:
-        ...
-
-    def call_tool(
-        self,
-        server: MCPServerConfig,
-        tool_name: str,
-        arguments: Dict[str, str],
-    ) -> str:
-        ...
+import anyio
+import httpx
+from mcp.client.session import ClientSession
+from mcp.client.streamable_http import create_mcp_http_client, streamable_http_client
 
 
-class InMemoryTransport:
-    def __init__(self, tools: Optional[List[MCPToolSpec]] = None) -> None:
-        self.tools = tools or []
-
-    def connect(self, server: MCPServerConfig) -> None:
-        return None
-
-    def list_tools(self, server: MCPServerConfig) -> List[MCPToolSpec]:
-        return self.tools
-
-    def call_tool(
-        self,
-        server: MCPServerConfig,
-        tool_name: str,
-        arguments: Dict[str, str],
-    ) -> str:
-        return (
-            f"MCP transport stub: '{tool_name}' on {server.name} called with {arguments}."
-        )
-
-
+@dataclass
 class MCPClient:
-    def __init__(self, server: MCPServerConfig, transport: MCPTransport) -> None:
-        self.server = server
-        self.transport = transport
+    url: str
+    timeout: float = 30.0
 
-    def connect(self) -> None:
-        self.transport.connect(self.server)
+    def call_tool(self, name: str, arguments: Optional[Dict[str, Any]] = None) -> str:
+        return anyio.run(self._call_tool, name, arguments or {})
 
-    def list_tools(self) -> List[MCPToolSpec]:
-        return self.transport.list_tools(self.server)
+    async def _call_tool(self, name: str, arguments: Dict[str, Any]) -> str:
+        timeout = httpx.Timeout(self.timeout)
+        async_client = create_mcp_http_client(timeout=timeout)
+        async with streamable_http_client(self.url, http_client=async_client) as streams:
+            read_stream, write_stream, _get_session_id = streams
+            async with ClientSession(read_stream, write_stream) as session:
+                await session.initialize()
+                result = await session.call_tool(name, arguments)
+        return _format_result(result)
 
-    def call_tool(self, tool_name: str, arguments: Dict[str, str]) -> str:
-        return self.transport.call_tool(self.server, tool_name, arguments)
+
+def _format_result(result) -> str:
+    structured = getattr(result, "structuredContent", None)
+    if structured:
+        return json.dumps(structured, ensure_ascii=True)
+    contents = getattr(result, "content", [])
+    if not contents:
+        return ""
+    parts = []
+    for item in contents:
+        text = getattr(item, "text", None)
+        if text:
+            parts.append(text)
+        else:
+            parts.append(str(item))
+    return "\n".join(parts)

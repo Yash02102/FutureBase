@@ -1,3 +1,3 @@
-from .pipeline import RAGConfig, RAGPipeline
+from .pipeline import RAGPipeline, build_index
 
-__all__ = ["RAGConfig", "RAGPipeline"]
+__all__ = ["RAGPipeline", "build_index"]

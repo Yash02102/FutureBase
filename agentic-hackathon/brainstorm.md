@@ -309,3 +309,52 @@ If you want, I can map your system to this taxonomy in a precise way
 
 I was researching a bit
 Suggest for accuracy
+
+
+# Middleware Ideas
+Common custom middleware ideas for this project:
+
+Token budget limiter / auto‑summarize when messages grow too large.
+Tool allowlist / rate limiting / per‑tool quotas.
+PII scrubbing on tool outputs before they re‑enter the model context.
+Structured logging / metrics for model and tool latency.
+Policy injection via dynamic_prompt to adjust system prompt per request.
+Response normalization (e.g., enforce citations when RAG is used).
+
+Input / prompt safety
+
+Max input length + hard truncation
+Prompt‑injection detection (block or strip “ignore system”, “exfiltrate secrets”)
+PII detection/redaction before tools or logs
+Tool safety
+
+Tool allowlist by intent (e.g., no checkout unless intent is purchase)
+Tool argument validation (schema + value bounds)
+Rate limiting / retries with backoff
+“Dangerous tool” approvals (checkout, refunds, address changes)
+Commerce / business logic
+
+Price ceiling guardrail (e.g., reject items above user budget)
+Inventory must be available before cart/checkout
+Require user confirmation on cart + payment + address
+Order total validation against promotions
+RAG reliability
+
+Minimum relevance threshold (return “need more info” if low score)
+Require citations when RAG context is used
+Block hallucinated SKUs (must exist in catalog tool output)
+Data access
+
+Filesystem root enforcement (limit to FILESYSTEM_ROOT)
+MCP server allowlist (only known hosts/tools)
+Prevent tool calls that include secrets or paths outside allowed root
+Operational
+
+Max tokens per run; summarize when exceeded
+Cache‑hit guardrail (avoid repeated expensive calls)
+Observability: log all tool calls and decisions
+Where to wire them
+
+Middleware (wrap_tool_call, wrap_model_call) for tool gating, retries, and PII scrub
+Graph nodes for input/output checks + RAG confidence checks
+MCP server for schema and policy enforcement
