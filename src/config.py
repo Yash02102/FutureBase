@@ -59,7 +59,7 @@ class AppConfig:
         rag_rewrite_count = int(os.getenv("RAG_REWRITE_COUNT", "2"))
         rag_rerank_top_k = int(os.getenv("RAG_RERANK_TOP_K", "6"))
 
-        mcp_server_url = os.getenv("MCP_SERVER_URL", "http://localhost:9000/mcp")
+        mcp_server_url = os.getenv("MCP_SERVER_URL", "http://localhost:8000/mcp")
 
         tool_router_max_tools = int(os.getenv("TOOL_ROUTER_MAX_TOOLS", "10"))
         tool_router_max_cost = int(os.getenv("TOOL_ROUTER_MAX_COST", "14"))

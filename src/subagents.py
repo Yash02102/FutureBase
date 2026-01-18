@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Sequence
 
 from deepagents import create_deep_agent
@@ -78,9 +78,16 @@ def run_parallel_specialists(
 
     results: List[str] = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(_run_agent, name, prompt, tlist) for name, prompt, tlist in prompts]
-        for future in futures:
-            results.append(future.result())
+        future_map = {
+            executor.submit(_run_agent, name, prompt, tlist): name
+            for name, prompt, tlist in prompts
+        }
+        for future in as_completed(future_map):
+            name = future_map[future]
+            try:
+                results.append(future.result())
+            except Exception as exc:
+                print(f"[subagent:{name}] failed: {exc}")
     return [note for note in results if note]
 
 

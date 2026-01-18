@@ -10,7 +10,7 @@ from .client import MCPClient
 
 
 def _mcp_url() -> str:
-    return os.getenv("MCP_SERVER_URL", "http://localhost:9000/mcp")
+    return os.getenv("MCP_SERVER_URL", "http://localhost:8000/mcp")
 
 
 @lru_cache(maxsize=1)
