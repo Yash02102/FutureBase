@@ -57,20 +57,20 @@ HTML_PAGE = """
       @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Space+Grotesk:wght@400;500;600;700&display=swap");
 
       :root {
-        color-scheme: light;
-        --ink: #0f172a;
-        --muted: #64748b;
-        --paper: #f8fafc;
-        --paper-strong: #e2e8f0;
-        --accent: #4f46e5;
-        --accent-strong: #4338ca;
-        --accent-cool: #0ea5e9;
-        --bubble-user: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 80%);
-        --bubble-agent: #f1f5f9;
-        --stroke: rgba(148, 163, 184, 0.35);
-        --shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
-        --shadow-strong: 0 26px 60px rgba(15, 23, 42, 0.2);
-        --glow: 0 0 0 1px rgba(99, 102, 241, 0.18);
+        color-scheme: dark;
+        --ink: #f8fafc;
+        --muted: #94a3b8;
+        --paper: #0f1115;
+        --paper-strong: #1f232b;
+        --accent: #60a5fa;
+        --accent-strong: #2563eb;
+        --accent-cool: #22d3ee;
+        --bubble-user: #2f343e;
+        --bubble-agent: #1f232b;
+        --stroke: rgba(148, 163, 184, 0.15);
+        --shadow: 0 24px 60px rgba(2, 6, 23, 0.6);
+        --shadow-strong: 0 30px 70px rgba(2, 6, 23, 0.7);
+        --glow: 0 0 0 1px rgba(96, 165, 250, 0.2);
       }
 
       * {
@@ -82,9 +82,9 @@ HTML_PAGE = """
         font-family: "Space Grotesk", sans-serif;
         color: var(--ink);
         background:
-          radial-gradient(circle at 12% 12%, rgba(79, 70, 229, 0.18), transparent 48%),
-          radial-gradient(circle at 86% 18%, rgba(14, 165, 233, 0.18), transparent 52%),
-          linear-gradient(160deg, #f8fafc 0%, #eef2ff 60%, #e2e8f0 100%);
+          radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.15), transparent 45%),
+          radial-gradient(circle at 80% 10%, rgba(34, 211, 238, 0.1), transparent 45%),
+          linear-gradient(160deg, #0b0d12 0%, #151922 60%, #1b1f29 100%);
         min-height: 100vh;
       }
 
@@ -94,10 +94,10 @@ HTML_PAGE = """
         inset: 0;
         pointer-events: none;
         background-image:
-          linear-gradient(transparent 96%, rgba(15, 23, 42, 0.05) 100%),
-          linear-gradient(90deg, transparent 96%, rgba(15, 23, 42, 0.05) 100%);
+          linear-gradient(transparent 96%, rgba(255, 255, 255, 0.05) 100%),
+          linear-gradient(90deg, transparent 96%, rgba(255, 255, 255, 0.04) 100%);
         background-size: 28px 28px;
-        opacity: 0.2;
+        opacity: 0.15;
       }
 
       .ambient-orbs {
@@ -113,7 +113,7 @@ HTML_PAGE = """
         width: 320px;
         height: 320px;
         border-radius: 50%;
-        background: radial-gradient(circle, rgba(99, 102, 241, 0.2), transparent 70%);
+        background: radial-gradient(circle, rgba(96, 165, 250, 0.25), transparent 70%);
         filter: blur(12px);
         animation: float 18s ease-in-out infinite;
       }
@@ -128,7 +128,7 @@ HTML_PAGE = """
         height: 420px;
         bottom: -120px;
         right: -80px;
-        background: radial-gradient(circle, rgba(14, 165, 233, 0.2), transparent 70%);
+        background: radial-gradient(circle, rgba(34, 211, 238, 0.18), transparent 70%);
         animation-delay: -8s;
       }
 
@@ -150,6 +150,7 @@ HTML_PAGE = """
         gap: 24px;
         position: relative;
         z-index: 1;
+        min-height: 100vh;
       }
 
       header {
@@ -175,8 +176,13 @@ HTML_PAGE = """
 
       h1 {
         font-family: "Fraunces", serif;
-        font-size: clamp(2rem, 2.5vw, 2.6rem);
+        font-size: clamp(2rem, 2.6vw, 2.8rem);
         margin: 0;
+      }
+
+      .subtle {
+        color: var(--muted);
+        font-size: 14px;
       }
 
       .sub {
@@ -191,7 +197,7 @@ HTML_PAGE = """
         gap: 12px;
         padding: 14px 18px;
         border-radius: 18px;
-        background: rgba(248, 250, 252, 0.88);
+        background: rgba(31, 35, 43, 0.8);
         border: 1px solid var(--stroke);
         box-shadow: var(--shadow);
         min-width: 220px;
@@ -214,7 +220,7 @@ HTML_PAGE = """
       .button {
         appearance: none;
         border: none;
-        background: linear-gradient(135deg, var(--accent), var(--accent-cool));
+        background: linear-gradient(135deg, var(--accent-strong), var(--accent-cool));
         color: #fff;
         padding: 10px 18px;
         border-radius: 999px;
@@ -227,7 +233,7 @@ HTML_PAGE = """
       }
 
       .button.secondary {
-        background: linear-gradient(135deg, #0f172a, #334155);
+        background: linear-gradient(135deg, #111827, #1f2937);
       }
 
       .button:active {
@@ -246,25 +252,30 @@ HTML_PAGE = """
       main {
         display: grid;
         gap: 18px;
+        flex: 1;
       }
 
       .chat-window {
-        min-height: 46vh;
-        max-height: 62vh;
-        overflow-y: auto;
-        padding: 26px;
-        border-radius: 24px;
-        background: rgba(255, 255, 255, 0.75);
-        border: 1px solid var(--stroke);
-        box-shadow: var(--shadow-strong);
-        backdrop-filter: blur(16px);
+        min-height: 60vh;
+        border-radius: 0;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        backdrop-filter: none;
         position: relative;
+        display: flex;
+        flex-direction: column;
+        overflow: visible;
       }
 
       .chat-messages {
         display: flex;
         flex-direction: column;
         gap: 18px;
+        padding: 26px clamp(16px, 6vw, 96px) 32px;
+        overflow-y: visible;
+        flex: 1;
+        align-items: center;
       }
 
       .chat-overlay {
@@ -272,7 +283,7 @@ HTML_PAGE = """
         inset: 0;
         display: grid;
         place-items: center;
-        background: rgba(15, 23, 42, 0.08);
+        background: rgba(15, 23, 42, 0.6);
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.3s ease;
@@ -289,7 +300,7 @@ HTML_PAGE = """
         gap: 16px;
         padding: 16px 20px;
         border-radius: 18px;
-        background: rgba(255, 255, 255, 0.92);
+        background: rgba(17, 24, 39, 0.95);
         border: 1px solid rgba(148, 163, 184, 0.3);
         box-shadow: var(--shadow);
         backdrop-filter: blur(12px);
@@ -356,7 +367,7 @@ HTML_PAGE = """
         padding: 28px 16px;
         border: 1px dashed rgba(148, 163, 184, 0.4);
         border-radius: 18px;
-        background: rgba(226, 232, 240, 0.6);
+        background: rgba(30, 41, 59, 0.35);
       }
 
       .message {
@@ -364,6 +375,7 @@ HTML_PAGE = """
         flex-direction: column;
         gap: 6px;
         animation: rise 0.3s ease;
+        width: 100%;
       }
 
       .message.user {
@@ -371,14 +383,14 @@ HTML_PAGE = """
       }
 
       .message.assistant {
-        align-items: flex-start;
+        align-items: center;
       }
 
       .label {
         font-size: 11px;
         text-transform: uppercase;
         letter-spacing: 0.22em;
-        color: var(--muted);
+        color: rgba(148, 163, 184, 0.6);
       }
 
       .bubble {
@@ -387,8 +399,64 @@ HTML_PAGE = """
         max-width: min(540px, 92%);
         line-height: 1.6;
         font-size: 15px;
-        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+        box-shadow: 0 12px 24px rgba(2, 6, 23, 0.25);
+        border: 1px solid rgba(148, 163, 184, 0.08);
+      }
+
+      .message.assistant .bubble {
+        max-width: 100%;
+        width: 100%;
+      }
+
+      .bubble p {
+        margin: 0 0 10px;
+      }
+
+      .bubble p:last-child {
+        margin-bottom: 0;
+      }
+
+      .bubble ul,
+      .bubble ol {
+        margin: 8px 0 8px 18px;
+        padding: 0;
+      }
+
+      .bubble code {
+        font-family: "Space Grotesk", sans-serif;
+        background: rgba(148, 163, 184, 0.12);
+        padding: 2px 6px;
+        border-radius: 6px;
+      }
+
+      .bubble pre {
+        background: rgba(2, 6, 23, 0.5);
+        padding: 10px 12px;
+        border-radius: 12px;
+        overflow-x: auto;
+      }
+
+      .bubble pre code {
+        background: transparent;
+        padding: 0;
+      }
+
+      .bubble table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0;
+        font-size: 14px;
+      }
+
+      .bubble th,
+      .bubble td {
         border: 1px solid rgba(148, 163, 184, 0.2);
+        padding: 8px 10px;
+        text-align: left;
+      }
+
+      .bubble thead {
+        background: rgba(15, 23, 42, 0.6);
       }
 
       .message.user .bubble {
@@ -442,32 +510,37 @@ HTML_PAGE = """
       .composer {
         display: grid;
         gap: 12px;
-        padding: 18px;
-        border-radius: 20px;
-        background: rgba(248, 250, 252, 0.9);
-        border: 1px solid var(--stroke);
+        padding: 16px 20px 18px;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        background: rgba(17, 24, 39, 0.9);
+        backdrop-filter: blur(10px);
+        margin: 0 0 32px;
+        width: 100%;
+        border-radius: 16px;
         box-shadow: var(--shadow);
-        backdrop-filter: blur(12px);
+        position: sticky;
+        bottom: 24px;
       }
 
       textarea {
         width: 100%;
-        min-height: 96px;
+        min-height: 78px;
         border-radius: 16px;
-        border: 1px solid rgba(148, 163, 184, 0.4);
+        border: 1px solid rgba(148, 163, 184, 0.25);
         padding: 12px 14px;
         font-family: inherit;
         font-size: 15px;
         resize: vertical;
-        background: #fff;
-        box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.06);
+        background: rgba(15, 23, 42, 0.7);
+        color: var(--ink);
+        box-shadow: inset 0 1px 2px rgba(2, 6, 23, 0.4);
         transition: border 0.2s ease, box-shadow 0.2s ease;
       }
 
       textarea:focus {
         outline: none;
-        border-color: rgba(79, 70, 229, 0.6);
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        border-color: rgba(96, 165, 250, 0.6);
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
       }
 
       .actions {
@@ -588,17 +661,17 @@ HTML_PAGE = """
             </div>
           </div>
           <div class="chat-messages" id="chat-messages"></div>
+          <form class="composer" id="composer">
+            <textarea
+              id="message"
+              placeholder="Ask me to find a product under 5000, compare options, or prep a checkout."
+            ></textarea>
+            <div class="actions">
+              <div class="hint">Shift+Enter for newline</div>
+              <button class="button" id="send" type="submit">Send</button>
+            </div>
+          </form>
         </section>
-        <form class="composer" id="composer">
-          <textarea
-            id="message"
-            placeholder="Ask me to find a product under 5000, compare options, or prep a checkout."
-          ></textarea>
-          <div class="actions">
-            <div class="hint">Shift+Enter for newline</div>
-            <button class="button" id="send" type="submit">Send</button>
-          </div>
-        </form>
       </main>
     </div>
 
@@ -656,6 +729,133 @@ HTML_PAGE = """
         localStorage.setItem(MESSAGES_KEY, JSON.stringify(messages));
       }
 
+      function escapeHTML(value) {
+        return value
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function formatInline(text) {
+        return text
+          .replace(/`([^`]+)`/g, "<code>$1</code>")
+          .replace(/\\*\\*([^*]+)\\*\\*/g, "<strong>$1</strong>")
+          .replace(/\\*([^*]+)\\*/g, "<em>$1</em>");
+      }
+
+      function splitTableRow(line) {
+        const trimmed = line.trim().replace(/^\\|/, "").replace(/\\|$/, "");
+        return trimmed.split("|").map((cell) => cell.trim());
+      }
+
+      function isTableSeparator(line) {
+        const cells = splitTableRow(line);
+        if (cells.length < 2) {
+          return false;
+        }
+        return cells.every((cell) => /^:?-{3,}:?$/.test(cell));
+      }
+
+      function isTableRow(line) {
+        return line.includes("|");
+      }
+
+      function buildTable(lines, startIndex) {
+        const headerCells = splitTableRow(lines[startIndex]);
+        let index = startIndex + 2;
+        let html = "<table><thead><tr>";
+        headerCells.forEach((cell) => {
+          html += `<th>${formatInline(cell)}</th>`;
+        });
+        html += "</tr></thead><tbody>";
+
+        while (index < lines.length && lines[index].trim()) {
+          if (!isTableRow(lines[index]) || isTableSeparator(lines[index])) {
+            break;
+          }
+          const rowCells = splitTableRow(lines[index]);
+          html += "<tr>";
+          rowCells.forEach((cell) => {
+            html += `<td>${formatInline(cell)}</td>`;
+          });
+          html += "</tr>";
+          index += 1;
+        }
+
+        html += "</tbody></table>";
+        return { html, nextIndex: index };
+      }
+
+      function formatMessage(text) {
+        const escaped = escapeHTML(text);
+        const lines = escaped.split(/\\n/);
+        let html = "";
+        let listType = null;
+
+        for (let i = 0; i < lines.length; i += 1) {
+          const line = lines[i];
+          const trimmed = line.trim();
+          const bulletMatch = trimmed.match(/^[-*]\\s+(.*)/);
+          const orderedMatch = trimmed.match(/^\\d+\\.\\s+(.*)/);
+          const hasTable =
+            isTableRow(trimmed) && lines[i + 1] && isTableSeparator(lines[i + 1].trim());
+
+          if (hasTable) {
+            if (listType) {
+              html += `</${listType}>`;
+              listType = null;
+            }
+            const table = buildTable(lines, i);
+            html += table.html;
+            i = table.nextIndex - 1;
+            continue;
+          }
+
+          if (bulletMatch) {
+            if (listType !== "ul") {
+              if (listType) {
+                html += `</${listType}>`;
+              }
+              listType = "ul";
+              html += "<ul>";
+            }
+            html += `<li>${formatInline(bulletMatch[1])}</li>`;
+            return;
+          }
+
+          if (orderedMatch) {
+            if (listType !== "ol") {
+              if (listType) {
+                html += `</${listType}>`;
+              }
+              listType = "ol";
+              html += "<ol>";
+            }
+            html += `<li>${formatInline(orderedMatch[1])}</li>`;
+            return;
+          }
+
+          if (listType) {
+            html += `</${listType}>`;
+            listType = null;
+          }
+
+          if (!trimmed) {
+            continue;
+          }
+
+          html += `<p>${formatInline(trimmed)}</p>`;
+        }
+
+        if (listType) {
+          html += `</${listType}>`;
+        }
+
+        return html || "<p>…</p>";
+      }
+
       function appendMessage(role, text, todos, options = {}) {
         const wrapper = document.createElement("div");
         wrapper.className = `message ${role}`;
@@ -681,7 +881,7 @@ HTML_PAGE = """
             </span>
           `;
         } else {
-          bubble.textContent = text;
+          bubble.innerHTML = role === "assistant" ? formatMessage(text) : escapeHTML(text);
         }
 
         wrapper.appendChild(label);
@@ -699,7 +899,7 @@ HTML_PAGE = """
         }
 
         chatMessages.appendChild(wrapper);
-        chat.scrollTop = chat.scrollHeight;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
         return { wrapper, bubble };
       }
 
@@ -715,6 +915,7 @@ HTML_PAGE = """
         stored.forEach((msg) => {
           appendMessage(msg.role, msg.text, msg.todos || []);
         });
+        chatMessages.scrollTop = chatMessages.scrollHeight;
       }
 
       function addStoredMessage(role, text, todos) {
@@ -758,7 +959,7 @@ HTML_PAGE = """
           }
           const data = await response.json();
           saveSession(data.session_id);
-          pending.bubble.textContent = data.reply || "No response returned.";
+          pending.bubble.innerHTML = formatMessage(data.reply || "No response returned.");
           pending.wrapper.classList.remove("pending");
           if (Array.isArray(data.todos) && data.todos.length) {
             const list = document.createElement("ul");
