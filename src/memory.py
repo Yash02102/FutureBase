@@ -74,11 +74,19 @@ class FileMemoryBackend:
 
 
 class ConversationMemory:
-    def __init__(self, llm, settings: MemorySettings, backend: MemoryBackend, session_id: str) -> None:
+    def __init__(
+        self,
+        llm,
+        settings: MemorySettings,
+        backend: MemoryBackend,
+        session_id: str,
+        llm_config: dict | None = None,
+    ) -> None:
         self.llm = llm
         self.settings = settings
         self.backend = backend
         self.session_id = session_id
+        self.llm_config = llm_config
         self.state = backend.load(session_id)
 
     def add_user(self, content: str) -> None:
@@ -115,9 +123,15 @@ class ConversationMemory:
         serialized = "\n".join(
             f"{msg.type}: {getattr(msg, 'content', '')}" for msg in self.state.messages
         )
-        response = (summary_prompt | self.llm).invoke(
-            {"summary": self.state.summary, "messages": serialized}
-        )
+        if self.llm_config:
+            response = (summary_prompt | self.llm).invoke(
+                {"summary": self.state.summary, "messages": serialized},
+                config=self.llm_config,
+            )
+        else:
+            response = (summary_prompt | self.llm).invoke(
+                {"summary": self.state.summary, "messages": serialized}
+            )
         self.state.summary = getattr(response, "content", str(response))
         self.state.messages = self.state.messages[-self.settings.max_turns :]
         self._persist()
