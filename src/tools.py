@@ -1,18 +1,19 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import Callable
 
 import requests
 from langchain_core.tools import tool
 
 
-def create_rag_tool(rag_pipeline):
+def create_rag_tool(rag_pipeline, config_factory: Callable[[], dict] | None = None):
     @tool
     def rag_search(query: str, k: int = 4) -> str:
         """Retrieve relevant context from the RAG index."""
         if rag_pipeline is None:
             return ""
-        return rag_pipeline.lookup(query, k=k)
+        config = config_factory() if config_factory else None
+        return rag_pipeline.lookup(query, k=k, config=config)
 
     return rag_search
 
