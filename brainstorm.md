@@ -358,3 +358,135 @@ Where to wire them
 Middleware (wrap_tool_call, wrap_model_call) for tool gating, retries, and PII scrub
 Graph nodes for input/output checks + RAG confidence checks
 MCP server for schema and policy enforcement
+
+
+# Muti agent
+
+## Subagents - Supervisor pattern
+The supervisor pattern is a multi-agent architecture where a central supervisor agent coordinates specialized worker agents. This approach excels when tasks require different types of expertise. Rather than building one agent that manages tool selection across domains, you create focused specialists coordinated by a supervisor who understands the overall workflow.
+
+## Handoff - State machine pattern
+
+The state machine pattern describes workflows where an agent’s behavior changes as it moves through different states of a task. This tutorial shows how to implement a state machine by using tool calls to dynamically change a single agent’s configuration—updating its available tools and instructions based on the current state. The state can be determined from multiple sources: the agent’s past actions (tool calls), external state (such as API call results), or even initial user input (for example, by running a classifier to determine user intent).
+
+## Router
+
+The router pattern is a multi-agent architecture where a routing step classifies input and directs it to specialized agents, with results synthesized into a combined response. This pattern excels when your organization’s knowledge lives across distinct verticals—separate knowledge domains that each require their own agent with specialized tools and prompts.
+
+## SKILLS
+
+Progressive disclosure - a context management technique where the agent loads information on-demand rather than upfront - to implement skills (specialized prompt-based instructions). The agent loads skills via tool calls, rather than dynamically changing the system prompt, discovering and loading only the skills it needs for each task.
+
+--------------------------------------------------------
+
+
+# Agents core conepcts
+
+## Context Magement
+
+- Models context
+- Tools context
+- lifecyle context
+
+Large context
+Manage context as file system - this means that results can put to files rather than dumpping to LLM and tools call result will be replaced by this file location and agent can access this like a tool getting data it needs
+
+## Plugable memory system
+
+State Backend - Epihermal memory
+File System - On Disk
+Store Backend - long term memory
+Composite Backend - Route different path to different paths
+
+## Task Delegation - Subagents
+
+context isolation
+Parallel execution
+Specializtion
+Token efficiency
+
+## Coversational memory summurization
+
+enables long conversation hitting limits
+context recent mesaages while compressing ancient history
+
+## Dangling tool calls
+
+fixes message history so AI does not gets confused what happened after AI Message
+Perevents confusion
+Garcefully handle failures
+Maintains convesration coherence
+
+## Todo list tracking
+
+Track mutiple tasks status
+Helpful for long horizon tasks
+Organize complex muti step tasks
+
+## Human in the loop
+
+safety gates for desctuctive oprations
+user verification before expensive API calls
+
+
+## Caching
+
+reduce token consumption
+reduce context flodding
+reduce load on tools calls (MCP/API/etc..)
+reduce rate limit hitting
+high respone on repeated questions
+
+## MCP
+
+## RAG
+
+------------------------------
+
+# Observability
+
+## Runs (spans) 
+
+single unit of work done by LLM apploication
+
+## Traces
+
+Collection of Runs that an complete operation
+
+## Theards
+
+Sequence of traces - muti turn conversation
+
+## Projects
+
+Collection of traces
+
+## Feedback
+
+allows to tag or score each run 
+
+## Tags
+
+## Metadata
+
+
+--------------------------------------
+
+# Evaluation
+
+## Offline
+- Create dataset
+- Define evalutors
+    - human review
+    - code evalutor
+    - LLM as a judge
+    - pairwise 
+- Run Experiments
+- analyze
+
+## Online
+
+- Deploy
+- online evalutors
+- Monitor in real time
+- Establish a feedback loop
