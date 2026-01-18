@@ -20,6 +20,9 @@ def main() -> None:
 
     state = run_agent(task, session_id=session_id, config=config)
     print("Session:", session_id)
+    trace_id = state.get("trace_id")
+    if trace_id:
+        print("Trace:", trace_id)
     print("Todos:", ", ".join(state.get("todos", [])) or "(none)")
     print("Result:\n", state.get("result", ""))
 

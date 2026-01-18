@@ -41,13 +41,13 @@ class RAGPipeline:
         self._store: FAISS | None = None
         self._bm25: BM25Retriever | None = None
 
-    def lookup(self, query: str, k: int = 4) -> str:
+    def lookup(self, query: str, k: int = 4, config: dict | None = None) -> str:
         store = self._load_store()
         if not store:
             return ""
-        queries = self._rewrite_queries(query)
+        queries = self._rewrite_queries(query, config=config)
         docs = self._hybrid_retrieve(store, queries)
-        docs = self._rerank(query, docs)
+        docs = self._rerank(query, docs, config=config)
         if k:
             docs = docs[:k]
         return "\n\n".join(doc.page_content for doc in docs)
@@ -77,7 +77,7 @@ class RAGPipeline:
         self._bm25.k = self.bm25_k
         return self._bm25
 
-    def _rewrite_queries(self, query: str) -> List[str]:
+    def _rewrite_queries(self, query: str, config: dict | None = None) -> List[str]:
         if not self.llm or self.rewrite_count <= 0:
             return [query]
         prompt = ChatPromptTemplate.from_messages(
@@ -89,9 +89,15 @@ class RAGPipeline:
                 ("human", "Request: {query}\nReturn {count} variants."),
             ]
         )
-        response = (prompt | self.llm).invoke(
-            {"query": query, "count": self.rewrite_count}
-        )
+        if config:
+            response = (prompt | self.llm).invoke(
+                {"query": query, "count": self.rewrite_count},
+                config=config,
+            )
+        else:
+            response = (prompt | self.llm).invoke(
+                {"query": query, "count": self.rewrite_count}
+            )
         content = getattr(response, "content", str(response))
         variants = [line.strip("- ").strip() for line in content.splitlines() if line.strip()]
         variants = [variant for variant in variants if variant]
@@ -106,13 +112,13 @@ class RAGPipeline:
                 results.extend(bm25.invoke(q))
         return _dedupe_documents(results)
 
-    def _rerank(self, query: str, docs: List[Document]) -> List[Document]:
+    def _rerank(self, query: str, docs: List[Document], config: dict | None = None) -> List[Document]:
         if not self.llm or not docs:
             return docs
         scored: List[tuple[int, Document]] = []
         for doc in docs[: max(self.rerank_top_k * 2, len(docs))]:
             snippet = doc.page_content[:600]
-            score = _score_with_llm(self.llm, query, snippet)
+            score = _score_with_llm(self.llm, query, snippet, config=config)
             scored.append((score, doc))
         scored.sort(key=lambda item: item[0], reverse=True)
         return [doc for _score, doc in scored]
@@ -139,7 +145,7 @@ def _dedupe_documents(documents: Iterable[Document]) -> List[Document]:
     return unique
 
 
-def _score_with_llm(llm, query: str, snippet: str) -> int:
+def _score_with_llm(llm, query: str, snippet: str, config: dict | None = None) -> int:
     prompt = ChatPromptTemplate.from_messages(
         [
             (
@@ -149,7 +155,10 @@ def _score_with_llm(llm, query: str, snippet: str) -> int:
             ("human", "Query: {query}\nSnippet: {snippet}"),
         ]
     )
-    response = (prompt | llm).invoke({"query": query, "snippet": snippet})
+    if config:
+        response = (prompt | llm).invoke({"query": query, "snippet": snippet}, config=config)
+    else:
+        response = (prompt | llm).invoke({"query": query, "snippet": snippet})
     content = getattr(response, "content", "0").strip()
     try:
         return max(0, min(3, int(content.split()[0])))

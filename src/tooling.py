@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List
+from typing import Callable, List
 
 from langchain_core.tools import BaseTool
 
@@ -15,8 +15,8 @@ class ToolSets:
     generic_tools: List[BaseTool]
 
 
-def build_tool_sets(rag_pipeline) -> ToolSets:
-    rag_tool = create_rag_tool(rag_pipeline)
+def build_tool_sets(rag_pipeline, config_factory: Callable[[], dict] | None = None) -> ToolSets:
+    rag_tool = create_rag_tool(rag_pipeline, config_factory=config_factory)
     http_tool = create_http_get_tool()
     all_tools = [
         rag_tool,

@@ -35,6 +35,13 @@ class AppConfig:
     cache_mode: str
     filesystem_root: Optional[str]
     subagents_enabled: bool
+    langfuse_enabled: bool
+    langfuse_public_key: Optional[str]
+    langfuse_secret_key: Optional[str]
+    langfuse_base_url: Optional[str]
+    langfuse_user_id: Optional[str]
+    langfuse_tags: List[str]
+    langfuse_trace_name: str
 
     @classmethod
     def from_env(cls) -> "AppConfig":
@@ -74,6 +81,18 @@ class AppConfig:
 
         subagents_enabled = _get_bool("SUBAGENTS_ENABLED", "true")
 
+        langfuse_enabled = _get_bool("LANGFUSE_ENABLED", "false")
+        langfuse_public_key = os.getenv("LANGFUSE_PUBLIC_KEY")
+        langfuse_secret_key = os.getenv("LANGFUSE_SECRET_KEY")
+        langfuse_base_url = os.getenv("LANGFUSE_BASE_URL")
+        langfuse_user_id = os.getenv("LANGFUSE_USER_ID")
+        langfuse_tags = [
+            item.strip()
+            for item in os.getenv("LANGFUSE_TAGS", "").split(",")
+            if item.strip()
+        ]
+        langfuse_trace_name = os.getenv("LANGFUSE_TRACE_NAME", "futurebase.run")
+
         return cls(
             llm_provider=llm_provider,
             llm_model=llm_model,
@@ -99,4 +118,11 @@ class AppConfig:
             cache_mode=cache_mode,
             filesystem_root=filesystem_root,
             subagents_enabled=subagents_enabled,
+            langfuse_enabled=langfuse_enabled,
+            langfuse_public_key=langfuse_public_key,
+            langfuse_secret_key=langfuse_secret_key,
+            langfuse_base_url=langfuse_base_url,
+            langfuse_user_id=langfuse_user_id,
+            langfuse_tags=langfuse_tags,
+            langfuse_trace_name=langfuse_trace_name,
         )

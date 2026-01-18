@@ -46,6 +46,9 @@ Open `http://localhost:8000` in a browser. The UI stores the session id locally 
 - `MEMORY_BACKEND=ephemeral|filesystem`, `MEMORY_PATH=./data/memory`
 - `HITL_MODE=auto|manual`, `HITL_TOOLS=checkout,cart_add`
 - `CACHE_MODE=memory|off`
+- `LANGFUSE_ENABLED=true|false`, `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`
+- `LANGFUSE_BASE_URL=https://cloud.langfuse.com`, `LANGFUSE_TRACE_NAME=futurebase.run`
+- `LANGFUSE_USER_ID`, `LANGFUSE_TAGS=tag1,tag2`
 
 ## MCP Server
 The MCP server provides mock commerce APIs (catalog, inventory, pricing, cart, checkout, support).

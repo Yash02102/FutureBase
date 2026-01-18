@@ -24,6 +24,7 @@ class ChatResponse(BaseModel):
     session_id: str
     reply: str
     todos: list[str]
+    trace_id: str | None = None
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -43,6 +44,7 @@ def chat(payload: ChatRequest) -> ChatResponse:
         session_id=session_id,
         reply=str(state.get("result", "")),
         todos=list(state.get("todos", [])),
+        trace_id=state.get("trace_id") or None,
     )
 
 
