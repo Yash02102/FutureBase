@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Dict, List, TypedDict
 
 from deepagents import create_deep_agent
-from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import END, StateGraph
 from langgraph.errors import Command
@@ -13,8 +13,8 @@ from .config import AppConfig
 from .llm import ModelSettings, get_chat_model, get_embeddings
 from .memory import ConversationMemory, MemorySettings
 from .rag import RAGPipeline
-from .subagents import build_subagents, run_parallel_specialists
-from .tool_router import ToolRouter, build_tool_specs
+from .subagents import build_subagents
+from .tooling import build_tool_sets
 
 
 class AgentState(TypedDict):
@@ -23,8 +23,6 @@ class AgentState(TypedDict):
     summary: str
     messages: List[BaseMessage]
     rag_context: str
-    subagent_notes: List[str]
-    tool_names: List[str]
     result: str
     todos: List[str]
 
@@ -66,13 +64,8 @@ def build_agent_graph(config: AppConfig):
         summarize=config.memory_summarize,
     )
 
-    tool_specs = build_tool_specs(rag_pipeline)
-    tool_router = ToolRouter(
-        tool_specs,
-        max_tools=config.tool_router_max_tools,
-        max_cost=config.tool_router_max_cost,
-        min_score=config.tool_router_min_score,
-    )
+    tool_sets = build_tool_sets(rag_pipeline)
+    generic_tools = tool_sets.generic_tools
 
     cache = build_cache(config.cache_mode)
 
@@ -94,35 +87,16 @@ def build_agent_graph(config: AppConfig):
     def rag_step(state: AgentState) -> AgentState:
         if not rag_pipeline:
             return {**state, "rag_context": ""}
-        return {**state, "rag_context": rag_pipeline.lookup(state["task"]) }
-
-    def subagent_step(state: AgentState) -> AgentState:
-        if not config.subagents_enabled:
-            return {**state, "subagent_notes": []}
-        context = _build_context(state)
-        notes = run_parallel_specialists(
-            llm=llm,
-            task=state["task"],
-            context=context,
-            tools=[spec.tool for spec in tool_specs],
-            max_workers=config.subagent_parallelism,
-        )
-        return {**state, "subagent_notes": notes}
-
-    def tool_router_step(state: AgentState) -> AgentState:
-        context = _build_context(state)
-        tools = tool_router.select(state["task"], context)
-        return {**state, "tool_names": [tool.name for tool in tools]}
+        return {**state, "rag_context": rag_pipeline.lookup(state["task"])}
 
     def agent_step(state: AgentState) -> AgentState:
         context = _build_context(state)
-        selected_tools = _select_tools_by_name(tool_specs, state.get("tool_names", []))
-        subagents = build_subagents(llm, selected_tools)
+        subagents = build_subagents(llm, tool_sets.all_tools) if config.subagents_enabled else None
         interrupt_on = _build_interrupts(config)
         backend = _build_filesystem_backend(config)
         agent = create_deep_agent(
             model=llm,
-            tools=selected_tools,
+            tools=generic_tools,
             system_prompt=_system_prompt(),
             subagents=subagents,
             backend=backend,
@@ -148,15 +122,11 @@ def build_agent_graph(config: AppConfig):
     graph = StateGraph(AgentState)
     graph.add_node("ingest", ingest_step)
     graph.add_node("rag", rag_step)
-    graph.add_node("subagents", subagent_step)
-    graph.add_node("tools", tool_router_step)
     graph.add_node("agent", agent_step)
 
     graph.set_entry_point("ingest")
     graph.add_edge("ingest", "rag")
-    graph.add_edge("rag", "subagents")
-    graph.add_edge("subagents", "tools")
-    graph.add_edge("tools", "agent")
+    graph.add_edge("rag", "agent")
     graph.add_edge("agent", END)
 
     checkpointer = InMemorySaver() if config.hitl_mode == "manual" else None
@@ -171,8 +141,6 @@ def run_agent(task: str, session_id: str, config: AppConfig) -> Dict[str, object
         "summary": "",
         "messages": [],
         "rag_context": "",
-        "subagent_notes": [],
-        "tool_names": [],
         "result": "",
         "todos": [],
     }
@@ -225,14 +193,7 @@ def _build_context(state: AgentState) -> str:
         sections.append(f"Summary:\n{state['summary']}")
     if state.get("rag_context"):
         sections.append(f"RAG context:\n{state['rag_context']}")
-    if state.get("subagent_notes"):
-        sections.append("Subagent notes:\n" + "\n".join(state["subagent_notes"]))
     return "\n\n".join(sections)
-
-
-def _select_tools_by_name(tool_specs, names: List[str]):
-    name_set = set(names)
-    return [spec.tool for spec in tool_specs if spec.tool.name in name_set]
 
 
 def _extract_reply(payload) -> str:

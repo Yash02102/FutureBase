@@ -26,9 +26,6 @@ class AppConfig:
     rag_rewrite_count: int
     rag_rerank_top_k: int
     mcp_server_url: str
-    tool_router_max_tools: int
-    tool_router_max_cost: int
-    tool_router_min_score: float
     memory_max_turns: int
     memory_summarize: bool
     memory_backend: str
@@ -38,7 +35,6 @@ class AppConfig:
     cache_mode: str
     filesystem_root: Optional[str]
     subagents_enabled: bool
-    subagent_parallelism: int
 
     @classmethod
     def from_env(cls) -> "AppConfig":
@@ -61,10 +57,6 @@ class AppConfig:
 
         mcp_server_url = os.getenv("MCP_SERVER_URL", "http://localhost:8000/mcp")
 
-        tool_router_max_tools = int(os.getenv("TOOL_ROUTER_MAX_TOOLS", "10"))
-        tool_router_max_cost = int(os.getenv("TOOL_ROUTER_MAX_COST", "14"))
-        tool_router_min_score = float(os.getenv("TOOL_ROUTER_MIN_SCORE", "0"))
-
         memory_max_turns = int(os.getenv("MEMORY_MAX_TURNS", "12"))
         memory_summarize = _get_bool("MEMORY_SUMMARIZE", "true")
         memory_backend = os.getenv("MEMORY_BACKEND", "ephemeral").lower()
@@ -81,7 +73,6 @@ class AppConfig:
         filesystem_root = os.getenv("FILESYSTEM_ROOT")
 
         subagents_enabled = _get_bool("SUBAGENTS_ENABLED", "true")
-        subagent_parallelism = int(os.getenv("SUBAGENTS_PARALLELISM", "3"))
 
         return cls(
             llm_provider=llm_provider,
@@ -99,9 +90,6 @@ class AppConfig:
             rag_rewrite_count=rag_rewrite_count,
             rag_rerank_top_k=rag_rerank_top_k,
             mcp_server_url=mcp_server_url,
-            tool_router_max_tools=tool_router_max_tools,
-            tool_router_max_cost=tool_router_max_cost,
-            tool_router_min_score=tool_router_min_score,
             memory_max_turns=memory_max_turns,
             memory_summarize=memory_summarize,
             memory_backend=memory_backend,
@@ -111,5 +99,4 @@ class AppConfig:
             cache_mode=cache_mode,
             filesystem_root=filesystem_root,
             subagents_enabled=subagents_enabled,
-            subagent_parallelism=subagent_parallelism,
         )

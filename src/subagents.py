@@ -1,32 +1,62 @@
 from __future__ import annotations
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Sequence
 
-from deepagents import create_deep_agent
 from deepagents.middleware.subagents import SubAgent
-from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.tools import BaseTool
 
 
 SPECIALISTS = [
     {
-        "name": "CatalogResearch",
-        "description": "Find relevant products and summarize options.",
-        "system_prompt": "You are a catalog researcher. Use tools to list products and summarize tradeoffs.",
+        "name": "CatalogAgent",
+        "description": "Research products, inventory, and pricing for comparisons or recommendations.",
+        "system_prompt": (
+            "You are a catalog specialist. Use tools to search the catalog, check inventory, "
+            "and compare prices. Return a concise set of options with key tradeoffs."
+        ),
         "tool_names": {"catalog_search", "inventory_check", "pricing_lookup", "rag_search"},
     },
     {
-        "name": "PolicyCheck",
-        "description": "Flag missing info or risky actions.",
-        "system_prompt": "Identify missing details, risks, or policy concerns. Ask for clarifications.",
-        "tool_names": {"rag_search"},
+        "name": "CartAgent",
+        "description": "Manage cart contents when the user asks to add, remove, or review items.",
+        "system_prompt": (
+            "You manage cart updates. Add or remove items only when the user intent is explicit. "
+            "Summarize the updated cart and any relevant promo guidance."
+        ),
+        "tool_names": {"cart_add", "cart_remove", "cart_view", "promo_check"},
     },
     {
-        "name": "OrderSupport",
-        "description": "Handle order status or returns when relevant.",
-        "system_prompt": "Check order/return workflows and suggest next steps.",
-        "tool_names": {"order_status", "track_shipment", "return_request", "refund_status"},
+        "name": "CheckoutAgent",
+        "description": "Finalize checkout when required details are confirmed.",
+        "system_prompt": (
+            "You complete checkout only after required details are confirmed (user_id, address, "
+            "payment_method). Confirm cart totals before submitting."
+        ),
+        "tool_names": {"checkout", "cart_view"},
+    },
+    {
+        "name": "OrderSupportAgent",
+        "description": "Handle order status and shipment tracking requests.",
+        "system_prompt": "You provide order status and shipment tracking updates.",
+        "tool_names": {"order_status", "track_shipment"},
+    },
+    {
+        "name": "ReturnsAgent",
+        "description": "Handle return requests and refund status checks.",
+        "system_prompt": "You create return requests and report refund status when asked.",
+        "tool_names": {"return_request", "refund_status"},
+    },
+    {
+        "name": "ReorderAgent",
+        "description": "Place reorders for previous purchases once the user confirms.",
+        "system_prompt": "You reorder items only after the user confirms the order_id and user_id.",
+        "tool_names": {"reorder"},
+    },
+    {
+        "name": "SupportAgent",
+        "description": "Open support tickets for issues that need escalation.",
+        "system_prompt": "You open support tickets with a clear subject and concise issue summary.",
+        "tool_names": {"support_ticket"},
     },
 ]
 
@@ -46,57 +76,3 @@ def build_subagents(llm, tools: Sequence[BaseTool]) -> List[SubAgent]:
             }
         )
     return subagents
-
-
-def run_parallel_specialists(
-    llm,
-    task: str,
-    context: str,
-    tools: Sequence[BaseTool],
-    max_workers: int,
-) -> List[str]:
-    tool_map = {tool.name: tool for tool in tools}
-    prompts = []
-    for spec in SPECIALISTS:
-        selected = [tool_map[name] for name in spec["tool_names"] if name in tool_map]
-        prompts.append(
-            (
-                spec["name"],
-                spec["system_prompt"],
-                selected,
-            )
-        )
-
-    def _run_agent(name: str, system_prompt: str, agent_tools: Sequence[BaseTool]) -> str:
-        agent = create_deep_agent(model=llm, tools=list(agent_tools), system_prompt=system_prompt)
-        messages = []
-        if context:
-            messages.append(SystemMessage(content=f"Context:\n{context}"))
-        messages.append(HumanMessage(content=task))
-        payload = agent.invoke({"messages": messages})
-        return _extract_reply(payload, name)
-
-    results: List[str] = []
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        future_map = {
-            executor.submit(_run_agent, name, prompt, tlist): name
-            for name, prompt, tlist in prompts
-        }
-        for future in as_completed(future_map):
-            name = future_map[future]
-            try:
-                results.append(future.result())
-            except Exception as exc:
-                print(f"[subagent:{name}] failed: {exc}")
-    return [note for note in results if note]
-
-
-def _extract_reply(payload, name: str) -> str:
-    messages = payload.get("messages", []) if isinstance(payload, dict) else []
-    for message in reversed(messages):
-        content = getattr(message, "content", None) if not isinstance(message, dict) else message.get("content")
-        if isinstance(content, list):
-            content = " ".join(str(part) for part in content if part)
-        if content:
-            return f"{name}: {content}"
-    return ""

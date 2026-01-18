@@ -122,7 +122,7 @@ class ConversationMemory:
         self.state.messages = self.state.messages[-self.settings.max_turns :]
         self._persist()
 
-    def build_context(self, rag_context: str, subagent_notes: List[str]) -> str:
+    def build_context(self, rag_context: str) -> str:
         sections: List[str] = []
         if self.state.summary:
             sections.append(f"Summary:\n{self.state.summary}")
@@ -133,8 +133,6 @@ class ConversationMemory:
             sections.append(f"Recent turns:\n{transcript}")
         if rag_context:
             sections.append(f"RAG context:\n{rag_context}")
-        if subagent_notes:
-            sections.append("Subagent insights:\n" + "\n".join(subagent_notes))
         return "\n\n".join(sections).strip()
 
     def _persist(self) -> None:

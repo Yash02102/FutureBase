@@ -1,6 +1,6 @@
 # Deep Agents Commerce Scaffold
 
-Clean LangGraph + Deep Agents architecture with MCP tools, RAG, subagents, and token-efficient memory.
+Clean LangGraph + Deep Agents architecture with MCP tools, RAG, optional specialist subagents, and token-efficient memory.
 
 ## Quickstart
 1) Create env file
@@ -42,8 +42,7 @@ Open `http://localhost:8000` in a browser. The UI stores the session id locally 
 - `RAG_VECTOR_K=6`, `RAG_BM25_K=6`, `RAG_REWRITE_COUNT=2`, `RAG_RERANK_TOP_K=6`
 - `MCP_SERVER_URL=http://localhost:8000/mcp`
 - `FILESYSTEM_ROOT=C:\\abs\\path` to enable Deep Agents filesystem tools
-- `SUBAGENTS_ENABLED=true|false`, `SUBAGENTS_PARALLELISM=3`
-- `TOOL_ROUTER_MAX_TOOLS=10`, `TOOL_ROUTER_MAX_COST=14`
+- `SUBAGENTS_ENABLED=true|false` to attach specialist subagents to the main agent
 - `MEMORY_BACKEND=ephemeral|filesystem`, `MEMORY_PATH=./data/memory`
 - `HITL_MODE=auto|manual`, `HITL_TOOLS=checkout,cart_add`
 - `CACHE_MODE=memory|off`
@@ -53,5 +52,6 @@ The MCP server provides mock commerce APIs (catalog, inventory, pricing, cart, c
 By default it runs with streamable HTTP at `http://localhost:8000/mcp`.
 
 ## Notes
+- The main agent uses generic read-only tools and can delegate specialized actions (cart, checkout, returns) to subagents via the task tool. HITL gates sensitive actions.
 - HITL manual mode prompts in the CLI. It uses LangGraph checkpoints and deep agents middleware.
 - RAG only activates if `RAG_ENABLED=true` and the index exists.

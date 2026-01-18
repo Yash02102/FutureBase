@@ -20,7 +20,7 @@ def _client() -> MCPClient:
 
 @tool
 def catalog_search(query: str, limit: int = 5, max_price: Optional[float] = None, category: Optional[str] = None) -> str:
-    """Search the catalog for products."""
+    """Search the catalog for products in inventory."""
     return _client().call_tool(
         "catalog_search",
         {"query": query, "limit": limit, "max_price": max_price, "category": category},
