@@ -91,12 +91,17 @@ def build_agent_graph(config: AppConfig):
 
     def agent_step(state: AgentState) -> AgentState:
         context = _build_context(state)
-        subagents = build_subagents(llm, tool_sets.all_tools) if config.subagents_enabled else None
         interrupt_on = _build_interrupts(config)
+        tools = generic_tools if config.subagents_enabled else tool_sets.all_tools
+        subagents = (
+            build_subagents(llm, tool_sets.all_tools, interrupt_on=interrupt_on)
+            if config.subagents_enabled
+            else None
+        )
         backend = _build_filesystem_backend(config)
         agent = create_deep_agent(
             model=llm,
-            tools=generic_tools,
+            tools=tools,
             system_prompt=_system_prompt(),
             subagents=subagents,
             backend=backend,

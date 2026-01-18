@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Sequence
+from typing import Dict, List, Optional, Sequence
 
 from deepagents.middleware.subagents import SubAgent
 from langchain_core.tools import BaseTool
@@ -61,18 +61,23 @@ SPECIALISTS = [
 ]
 
 
-def build_subagents(llm, tools: Sequence[BaseTool]) -> List[SubAgent]:
+def build_subagents(
+    llm,
+    tools: Sequence[BaseTool],
+    interrupt_on: Optional[Dict[str, bool]] = None,
+) -> List[SubAgent]:
     tool_map = {tool.name: tool for tool in tools}
     subagents: List[SubAgent] = []
     for spec in SPECIALISTS:
         selected = [tool_map[name] for name in spec["tool_names"] if name in tool_map]
-        subagents.append(
-            {
-                "name": spec["name"],
-                "description": spec["description"],
-                "system_prompt": spec["system_prompt"],
-                "tools": selected,
-                "model": llm,
-            }
-        )
+        subagent: SubAgent = {
+            "name": spec["name"],
+            "description": spec["description"],
+            "system_prompt": spec["system_prompt"],
+            "tools": selected,
+            "model": llm,
+        }
+        if interrupt_on:
+            subagent["interrupt_on"] = interrupt_on
+        subagents.append(subagent)
     return subagents
