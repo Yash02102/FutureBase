@@ -58,17 +58,19 @@ HTML_PAGE = """
 
       :root {
         color-scheme: light;
-        --ink: #1c1a14;
-        --muted: #5b5b52;
-        --paper: #f4efe6;
-        --paper-strong: #f0e7d9;
-        --accent: #e2725b;
-        --accent-strong: #ba4b34;
-        --accent-cool: #2f4858;
-        --bubble-user: #f1d3a7;
-        --bubble-agent: #e8f0ef;
-        --stroke: #d7cdbd;
-        --shadow: 0 24px 45px rgba(20, 18, 12, 0.12);
+        --ink: #0f172a;
+        --muted: #64748b;
+        --paper: #f8fafc;
+        --paper-strong: #e2e8f0;
+        --accent: #4f46e5;
+        --accent-strong: #4338ca;
+        --accent-cool: #0ea5e9;
+        --bubble-user: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 80%);
+        --bubble-agent: #f1f5f9;
+        --stroke: rgba(148, 163, 184, 0.35);
+        --shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+        --shadow-strong: 0 26px 60px rgba(15, 23, 42, 0.2);
+        --glow: 0 0 0 1px rgba(99, 102, 241, 0.18);
       }
 
       * {
@@ -80,9 +82,9 @@ HTML_PAGE = """
         font-family: "Space Grotesk", sans-serif;
         color: var(--ink);
         background:
-          radial-gradient(circle at 12% 18%, rgba(226, 114, 91, 0.22), transparent 52%),
-          radial-gradient(circle at 86% 12%, rgba(47, 72, 88, 0.18), transparent 48%),
-          linear-gradient(145deg, #f8f2e6, #dde4d0);
+          radial-gradient(circle at 12% 12%, rgba(79, 70, 229, 0.18), transparent 48%),
+          radial-gradient(circle at 86% 18%, rgba(14, 165, 233, 0.18), transparent 52%),
+          linear-gradient(160deg, #f8fafc 0%, #eef2ff 60%, #e2e8f0 100%);
         min-height: 100vh;
       }
 
@@ -92,19 +94,62 @@ HTML_PAGE = """
         inset: 0;
         pointer-events: none;
         background-image:
-          linear-gradient(transparent 95%, rgba(0, 0, 0, 0.05) 100%),
-          linear-gradient(90deg, transparent 95%, rgba(0, 0, 0, 0.04) 100%);
-        background-size: 22px 22px;
-        opacity: 0.25;
+          linear-gradient(transparent 96%, rgba(15, 23, 42, 0.05) 100%),
+          linear-gradient(90deg, transparent 96%, rgba(15, 23, 42, 0.05) 100%);
+        background-size: 28px 28px;
+        opacity: 0.2;
+      }
+
+      .ambient-orbs {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 0;
+      }
+
+      .ambient-orbs span {
+        position: absolute;
+        width: 320px;
+        height: 320px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.2), transparent 70%);
+        filter: blur(12px);
+        animation: float 18s ease-in-out infinite;
+      }
+
+      .ambient-orbs span:nth-child(1) {
+        top: -80px;
+        left: -60px;
+      }
+
+      .ambient-orbs span:nth-child(2) {
+        width: 420px;
+        height: 420px;
+        bottom: -120px;
+        right: -80px;
+        background: radial-gradient(circle, rgba(14, 165, 233, 0.2), transparent 70%);
+        animation-delay: -8s;
+      }
+
+      .ambient-orbs span:nth-child(3) {
+        width: 220px;
+        height: 220px;
+        top: 35%;
+        right: 12%;
+        background: radial-gradient(circle, rgba(79, 70, 229, 0.18), transparent 70%);
+        animation-delay: -12s;
       }
 
       .shell {
-        max-width: 980px;
+        max-width: 1040px;
         margin: 0 auto;
-        padding: 32px 20px 36px;
+        padding: 36px 22px 40px;
         display: flex;
         flex-direction: column;
         gap: 24px;
+        position: relative;
+        z-index: 1;
       }
 
       header {
@@ -145,11 +190,12 @@ HTML_PAGE = """
         display: grid;
         gap: 12px;
         padding: 14px 18px;
-        border-radius: 16px;
-        background: rgba(244, 239, 230, 0.85);
+        border-radius: 18px;
+        background: rgba(248, 250, 252, 0.88);
         border: 1px solid var(--stroke);
         box-shadow: var(--shadow);
         min-width: 220px;
+        backdrop-filter: blur(12px);
       }
 
       .session-meta {
@@ -168,21 +214,33 @@ HTML_PAGE = """
       .button {
         appearance: none;
         border: none;
-        background: var(--accent);
+        background: linear-gradient(135deg, var(--accent), var(--accent-cool));
         color: #fff;
-        padding: 10px 16px;
+        padding: 10px 18px;
         border-radius: 999px;
         font-weight: 600;
         cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 12px 24px rgba(79, 70, 229, 0.25);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
       }
 
       .button.secondary {
-        background: var(--accent-cool);
+        background: linear-gradient(135deg, #0f172a, #334155);
       }
 
       .button:active {
         transform: translateY(1px);
+      }
+
+      .button.is-sending::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transform: translateX(-100%);
+        animation: shimmer 1s ease-in-out infinite;
       }
 
       main {
@@ -194,24 +252,111 @@ HTML_PAGE = """
         min-height: 46vh;
         max-height: 62vh;
         overflow-y: auto;
-        padding: 22px;
-        border-radius: 22px;
-        background: rgba(255, 255, 255, 0.7);
+        padding: 26px;
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.75);
         border: 1px solid var(--stroke);
-        box-shadow: var(--shadow);
-        backdrop-filter: blur(12px);
+        box-shadow: var(--shadow-strong);
+        backdrop-filter: blur(16px);
+        position: relative;
+      }
+
+      .chat-messages {
         display: flex;
         flex-direction: column;
+        gap: 18px;
+      }
+
+      .chat-overlay {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: rgba(15, 23, 42, 0.08);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 2;
+      }
+
+      body.is-sending .chat-overlay {
+        opacity: 1;
+      }
+
+      .overlay-card {
+        display: flex;
+        align-items: center;
         gap: 16px;
+        padding: 16px 20px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(12px);
+      }
+
+      .overlay-orbit {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        border: 2px solid rgba(79, 70, 229, 0.2);
+        position: relative;
+      }
+
+      .overlay-orbit::before {
+        content: "";
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--accent);
+        top: -5px;
+        left: 18px;
+        animation: spin 1.4s linear infinite;
+      }
+
+      .overlay-text {
+        display: grid;
+        gap: 4px;
+      }
+
+      .overlay-text strong {
+        font-size: 15px;
+      }
+
+      .overlay-text span {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .overlay-dots {
+        display: flex;
+        gap: 6px;
+      }
+
+      .overlay-dots span {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent-cool);
+        animation: bounce 1s ease-in-out infinite;
+      }
+
+      .overlay-dots span:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .overlay-dots span:nth-child(3) {
+        animation-delay: 0.4s;
       }
 
       .empty-state {
         text-align: center;
         color: var(--muted);
-        padding: 26px 14px;
-        border: 1px dashed var(--stroke);
-        border-radius: 16px;
-        background: rgba(240, 231, 217, 0.6);
+        padding: 28px 16px;
+        border: 1px dashed rgba(148, 163, 184, 0.4);
+        border-radius: 18px;
+        background: rgba(226, 232, 240, 0.6);
       }
 
       .message {
@@ -230,34 +375,62 @@ HTML_PAGE = """
       }
 
       .label {
-        font-size: 12px;
+        font-size: 11px;
         text-transform: uppercase;
-        letter-spacing: 0.18em;
+        letter-spacing: 0.22em;
         color: var(--muted);
       }
 
       .bubble {
-        padding: 14px 16px;
+        padding: 14px 18px;
         border-radius: 18px;
-        max-width: min(520px, 90%);
-        line-height: 1.55;
+        max-width: min(540px, 92%);
+        line-height: 1.6;
         font-size: 15px;
-        box-shadow: 0 10px 24px rgba(20, 18, 12, 0.08);
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+        border: 1px solid rgba(148, 163, 184, 0.2);
       }
 
       .message.user .bubble {
         background: var(--bubble-user);
-        border-top-right-radius: 6px;
+        border-top-right-radius: 8px;
       }
 
       .message.assistant .bubble {
         background: var(--bubble-agent);
-        border-top-left-radius: 6px;
+        border-top-left-radius: 8px;
       }
 
       .message.pending .bubble {
-        opacity: 0.7;
+        opacity: 0.9;
         font-style: italic;
+      }
+
+      .thinking {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .thinking-dots {
+        display: inline-flex;
+        gap: 4px;
+      }
+
+      .thinking-dots span {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+        animation: bounce 1s ease-in-out infinite;
+      }
+
+      .thinking-dots span:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .thinking-dots span:nth-child(3) {
+        animation-delay: 0.4s;
       }
 
       .todos {
@@ -270,22 +443,31 @@ HTML_PAGE = """
         display: grid;
         gap: 12px;
         padding: 18px;
-        border-radius: 18px;
-        background: rgba(244, 239, 230, 0.85);
+        border-radius: 20px;
+        background: rgba(248, 250, 252, 0.9);
         border: 1px solid var(--stroke);
         box-shadow: var(--shadow);
+        backdrop-filter: blur(12px);
       }
 
       textarea {
         width: 100%;
         min-height: 96px;
-        border-radius: 14px;
-        border: 1px solid var(--stroke);
+        border-radius: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
         padding: 12px 14px;
         font-family: inherit;
         font-size: 15px;
         resize: vertical;
-        background: #fffdf8;
+        background: #fff;
+        box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.06);
+        transition: border 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      textarea:focus {
+        outline: none;
+        border-color: rgba(79, 70, 229, 0.6);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
       }
 
       .actions {
@@ -311,6 +493,46 @@ HTML_PAGE = """
         }
       }
 
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(18px);
+        }
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg) translateY(-1px);
+        }
+        100% {
+          transform: rotate(360deg) translateY(-1px);
+        }
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+          opacity: 0.5;
+        }
+        50% {
+          transform: translateY(-4px);
+          opacity: 1;
+        }
+      }
+
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-120%);
+        }
+        100% {
+          transform: translateX(120%);
+        }
+      }
+
       @media (max-width: 720px) {
         header {
           flex-direction: column;
@@ -328,6 +550,11 @@ HTML_PAGE = """
     </style>
   </head>
   <body>
+    <div class="ambient-orbs" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
     <div class="shell">
       <header>
         <div class="title-block">
@@ -345,7 +572,23 @@ HTML_PAGE = """
       </header>
 
       <main>
-        <section class="chat-window" id="chat" aria-live="polite"></section>
+        <section class="chat-window" id="chat" aria-live="polite">
+          <div class="chat-overlay" id="chat-overlay" aria-hidden="true">
+            <div class="overlay-card">
+              <div class="overlay-orbit" aria-hidden="true"></div>
+              <div class="overlay-text">
+                <strong>Agent is thinking</strong>
+                <span>Reviewing the catalog and drafting a response.</span>
+              </div>
+              <div class="overlay-dots" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+          <div class="chat-messages" id="chat-messages"></div>
+        </section>
         <form class="composer" id="composer">
           <textarea
             id="message"
@@ -361,11 +604,13 @@ HTML_PAGE = """
 
     <script>
       const chat = document.getElementById("chat");
+      const chatMessages = document.getElementById("chat-messages");
       const form = document.getElementById("composer");
       const input = document.getElementById("message");
       const sendButton = document.getElementById("send");
       const sessionLabel = document.getElementById("session-id");
       const newSessionButton = document.getElementById("new-session");
+      const overlay = document.getElementById("chat-overlay");
 
       const SESSION_KEY = "futurebase.session";
       const MESSAGES_KEY = "futurebase.messages";
@@ -388,6 +633,15 @@ HTML_PAGE = """
           localStorage.removeItem(SESSION_KEY);
         }
         updateSessionLabel(id);
+      }
+
+      function setSendingState(isSending) {
+        document.body.classList.toggle("is-sending", isSending);
+        sendButton.classList.toggle("is-sending", isSending);
+        input.disabled = isSending;
+        if (overlay) {
+          overlay.setAttribute("aria-hidden", String(!isSending));
+        }
       }
 
       function loadMessages() {
@@ -415,7 +669,20 @@ HTML_PAGE = """
 
         const bubble = document.createElement("div");
         bubble.className = "bubble";
-        bubble.textContent = text;
+        if (options.pending) {
+          bubble.innerHTML = `
+            <span class="thinking">
+              <span>Thinking</span>
+              <span class="thinking-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+            </span>
+          `;
+        } else {
+          bubble.textContent = text;
+        }
 
         wrapper.appendChild(label);
         wrapper.appendChild(bubble);
@@ -431,7 +698,7 @@ HTML_PAGE = """
           wrapper.appendChild(list);
         }
 
-        chat.appendChild(wrapper);
+        chatMessages.appendChild(wrapper);
         chat.scrollTop = chat.scrollHeight;
         return { wrapper, bubble };
       }
@@ -442,7 +709,7 @@ HTML_PAGE = """
           const empty = document.createElement("div");
           empty.className = "empty-state";
           empty.textContent = "Start a conversation to build a multi-turn thread.";
-          chat.appendChild(empty);
+          chatMessages.appendChild(empty);
           return;
         }
         stored.forEach((msg) => {
@@ -458,7 +725,7 @@ HTML_PAGE = """
 
       function clearMessages() {
         localStorage.removeItem(MESSAGES_KEY);
-        chat.innerHTML = "";
+        chatMessages.innerHTML = "";
         renderStoredMessages();
       }
 
@@ -466,15 +733,16 @@ HTML_PAGE = """
         if (!message.trim()) {
           return;
         }
-        if (chat.querySelector(".empty-state")) {
-          chat.innerHTML = "";
+        if (chatMessages.querySelector(".empty-state")) {
+          chatMessages.innerHTML = "";
         }
 
         appendMessage("user", message);
         addStoredMessage("user", message, []);
         input.value = "";
         sendButton.disabled = true;
-        sendButton.textContent = "Working...";
+        sendButton.textContent = "Sending...";
+        setSendingState(true);
 
         const pending = appendMessage("assistant", "Thinking...", [], { pending: true });
 
@@ -509,6 +777,7 @@ HTML_PAGE = """
         } finally {
           sendButton.disabled = false;
           sendButton.textContent = "Send";
+          setSendingState(false);
         }
       }
 
